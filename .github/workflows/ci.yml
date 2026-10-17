@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  pruebas:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements-dev.txt
+      - run: pytest -q
+      - run: shellcheck scripts/*.sh
+
+  kubernetes:
+    runs-on: ubuntu-latest
+    needs: pruebas
+    steps:
+      - uses: actions/checkout@v5
+      - uses: helm/kind-action@v1
+        with:
+          config: scripts/kind.yaml
+          cluster_name: logistica
+      - run: scripts/desplegar.sh
+      - run: scripts/probar.sh
+      - if: failure()
+        run: kubectl -n logistica-system get pods -o wide && kubectl -n logistica-system logs -l app=sensor --tail=20
