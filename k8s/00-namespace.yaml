@@ -2,6 +2,3 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: logistica-system
-  labels:
-    name: logistica-system
-    purpose: iot-monitoring
