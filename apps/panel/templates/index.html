@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="refresh" content="3">
+  <title>Monitoreo de sensores</title>
+  <style>
+    body { font-family: system-ui, Arial, sans-serif; margin: 24px; background: #f5f6f8; color: #1f2933; }
+    h1 { margin: 0 0 4px; }
+    .meta { color: #616e7c; margin-bottom: 18px; }
+    .sensores { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin-bottom: 20px; }
+    .sensor { background: #fff; border: 1px solid #e4e7eb; border-radius: 8px; padding: 12px 14px; }
+    .sensor .valor { font-size: 28px; font-weight: 700; }
+    .sensor .alto { color: #c0392b; }
+    .sensor small { color: #7b8794; }
+    table { width: 100%; border-collapse: collapse; background: #fff; }
+    th, td { padding: 7px 10px; border-bottom: 1px solid #eef0f3; text-align: left; }
+    th { background: #fafbfc; color: #52606d; }
+    td.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .error { background: #fde8e8; color: #9b1c1c; padding: 10px 14px; border-radius: 6px; margin-bottom: 16px; }
+  </style>
+</head>
+<body>
+  <h1>Monitoreo de sensores</h1>
+  <div class="meta">Temperatura de motor de los robots del almacén · se actualiza cada 3 s · {{ total }} lecturas guardadas</div>
+  {% if error %}<div class="error">{{ error }}</div>{% endif %}
+
+  <div class="sensores">
+    {% for s in sensores %}
+    <div class="sensor">
+      <div>{{ s.sensor_id }}</div>
+      <div class="valor {{ 'alto' if s.valor >= 70 else '' }}">{{ '%.1f' % s.valor }} °C</div>
+      <small>{{ s.timestamp[:19].replace('T', ' ') }}</small>
+    </div>
+    {% else %}
+    <div>Sin sensores todavía.</div>
+    {% endfor %}
+  </div>
+
+  <table>
+    <thead><tr><th>Sensor</th><th>Fecha (UTC)</th><th class="num">Temperatura</th></tr></thead>
+    <tbody>
+      {% for f in historial %}
+      <tr><td>{{ f.sensor_id }}</td><td>{{ f.timestamp[:19].replace('T', ' ') }}</td><td class="num">{{ '%.2f' % f.valor }} °C</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</body>
+</html>
