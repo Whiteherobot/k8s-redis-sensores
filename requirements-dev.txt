@@ -1,0 +1,4 @@
+flask>=3,<4
+redis>=5,<7
+fakeredis>=2.20
+pytest>=8
