@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sensor
+  namespace: logistica-system
+  labels:
+    app: sensor
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: sensor
+  template:
+    metadata:
+      labels:
+        app: sensor
+    spec:
+      containers:
+        - name: sensor
+          image: logistica/sensor:1.0
+          imagePullPolicy: IfNotPresent
+          env:
+            # Cada réplica es un sensor distinto: usa el nombre de su pod.
+            - name: SENSOR_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: INTERVALO
+              value: "3"
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: redis-credentials
+                  key: redis-password
+          resources:
+            requests: { cpu: 10m, memory: 32Mi }
+            limits: { cpu: 100m, memory: 64Mi }
